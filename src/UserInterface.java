@@ -1,12 +1,14 @@
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.util.Optional;
 
 public class UserInterface {
     private Label label_ImAnno = new Label("Image Annotator");
@@ -43,14 +45,25 @@ public class UserInterface {
         File selectedDir = dc.showDialog(theRoot.getScene().getWindow());
         if (selectedDir != null) {
             System.out.println("Selected: " + selectedDir);
-            executor.createProject(selectedDir);
+            TextInputDialog tid = new TextInputDialog("defaultProject.json");
+            tid.setTitle("Project name");
+            tid.setHeaderText("Directory: " + selectedDir);
+            tid.setContentText("Please enter a project name:");
+            Optional<String> projectName = tid.showAndWait();
+            projectName.ifPresent(name -> {
+                System.out.println("Name: " + name);
+                executor.createProject(selectedDir, name);
+            });
         }
     }
 
     private void openProject(Pane theRoot) {
         FileChooser fc = new FileChooser();
         fc.setTitle("Choose project location");
-        fc.showOpenDialog(theRoot.getScene().getWindow());
+        FileChooser.ExtensionFilter jsonFilter = new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json");
+        fc.getExtensionFilters().add(jsonFilter);
+        File selectedFile = fc.showOpenDialog(theRoot.getScene().getWindow());
+        System.out.println("Selected: " + selectedFile);
     }
 
     /**********
