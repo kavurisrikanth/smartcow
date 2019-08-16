@@ -8,6 +8,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Optional;
 
 public class UserInterface {
@@ -52,7 +53,11 @@ public class UserInterface {
             Optional<String> projectName = tid.showAndWait();
             projectName.ifPresent(name -> {
                 System.out.println("Name: " + name);
-                executor.createProject(selectedDir, name);
+                try {
+                    executor.createProject(selectedDir, name);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             });
         }
     }
