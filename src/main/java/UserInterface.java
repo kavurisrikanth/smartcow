@@ -1,3 +1,4 @@
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -6,6 +7,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseDragEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -103,8 +106,37 @@ public class UserInterface {
 
                 GraphicsContext gc = canvas.getGraphicsContext2D();
                 gc.drawImage(image, 0, 0,canvas.getWidth(), canvas.getHeight());
+                Rectangle dragBox = new Rectangle(0,0,0,0);
+                dragBox.setStroke(Color.BLACK);
+                dragBox.setStrokeWidth(1.0);
+                dragBox.setFill(Color.TRANSPARENT);
+                final double[] dragStartX = new double[1];
+                final double[] dragStartY = new double[1];
+
+                canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
+                    dragStartX[0] = event.getSceneX();
+                    dragStartY[0] = event.getSceneY();
+                    dragBox.setX(dragStartX[0]);
+                    dragBox.setY(dragStartY[0]);
+                    dragBox.setWidth(0);
+                    dragBox.setHeight(0);
+                    dragBox.setVisible(true);
+                });
+
+                canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
+                    dragBox.setWidth(event.getSceneX() - dragStartX[0]);
+                    dragBox.setHeight(event.getSceneY() - dragStartY[0]);
+                });
+
+                canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
+                    System.out.println(dragBox);
+                    dragBox.setVisible(false);
+                    dragStartX[0] = 0;
+                    dragStartY[0] = 0;
+                });
 
                 imagePane.getChildren().add(canvas);
+                imagePane.getChildren().add(dragBox);
 
                 Scene imageScene = new Scene(imagePane, App.WINDOW_WIDTH, App.WINDOW_HEIGHT);
                 Stage imageStage = new Stage();
