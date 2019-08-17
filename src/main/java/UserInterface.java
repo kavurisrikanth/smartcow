@@ -1,4 +1,5 @@
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
@@ -14,6 +15,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,22 +96,21 @@ public class UserInterface {
         try {
             executor.openProject(new File(currentProj));
             if (executor.getNumImages() > 0) {
-//                Rectangle rect = new Rectangle(App.WINDOW_WIDTH - 100, App.WINDOW_HEIGHT - 100);
+                Pane imagePane = new Pane();
 
-//                rect.setFill(new LinearGradient(0, 0, 1, 1, true,
-//                        CycleMethod.REFLECT,
-//                        new Stop(0, Color.RED),
-//                        new Stop(1, Color.YELLOW)));
-
-//                theRoot.getChildren().add(rect);
-
-                Canvas canvas = new Canvas(App.WINDOW_WIDTH - 100, App.WINDOW_HEIGHT - 100);
-                Image image = new Image(executor.getImages().get(0).getPath());
+                Canvas canvas = new Canvas(App.WINDOW_WIDTH, App.WINDOW_HEIGHT);
+                Image image = new Image(new File(executor.getImages().get(0).getPath()).toURI().toURL().toString());
 
                 GraphicsContext gc = canvas.getGraphicsContext2D();
                 gc.drawImage(image, 0, 0,canvas.getWidth(), canvas.getHeight());
 
-                theRoot.getChildren().add(canvas);
+                imagePane.getChildren().add(canvas);
+
+                Scene imageScene = new Scene(imagePane, App.WINDOW_WIDTH, App.WINDOW_HEIGHT);
+                Stage imageStage = new Stage();
+                imageStage.setTitle("Image");
+                imageStage.setScene(imageScene);
+                imageStage.show();
             }
 
         } catch (IOException e) {
