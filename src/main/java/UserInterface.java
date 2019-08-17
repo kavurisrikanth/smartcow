@@ -1,8 +1,16 @@
 import javafx.geometry.Pos;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -21,6 +29,8 @@ public class UserInterface {
     private final double BUTTON_BUFFER = BUTTON_WIDTH/10;
     private double createStart = 20;
     private double openStart = createStart + BUTTON_WIDTH + BUTTON_BUFFER;
+
+    private String currentProj;
 
     private BusinessLogic executor = new BusinessLogic();
 
@@ -54,8 +64,13 @@ public class UserInterface {
             projectName.ifPresent(name -> {
                 System.out.println("Name: " + name);
                 try {
-                    executor.createProject(selectedDir, name);
+                    System.out.println("Trying to create project");
+                    currentProj = executor.createProject(selectedDir, name);
+                    System.out.println("Project creation done - " + currentProj);
+                    showProject(theRoot);
                 } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (IllegalArgumentException e) {
                     e.printStackTrace();
                 }
             });
@@ -69,6 +84,39 @@ public class UserInterface {
         fc.getExtensionFilters().add(jsonFilter);
         File selectedFile = fc.showOpenDialog(theRoot.getScene().getWindow());
         System.out.println("Selected: " + selectedFile);
+        if (selectedFile != null) {
+            currentProj = selectedFile.getAbsolutePath();
+            showProject(theRoot);
+        }
+    }
+
+    private void showProject(Pane theRoot) {
+        try {
+            executor.openProject(new File(currentProj));
+            if (executor.getNumImages() > 0) {
+//                Rectangle rect = new Rectangle(App.WINDOW_WIDTH - 100, App.WINDOW_HEIGHT - 100);
+
+//                rect.setFill(new LinearGradient(0, 0, 1, 1, true,
+//                        CycleMethod.REFLECT,
+//                        new Stop(0, Color.RED),
+//                        new Stop(1, Color.YELLOW)));
+
+//                theRoot.getChildren().add(rect);
+
+                Canvas canvas = new Canvas(App.WINDOW_WIDTH - 100, App.WINDOW_HEIGHT - 100);
+                Image image = new Image(executor.getImages().get(0).getPath());
+
+                GraphicsContext gc = canvas.getGraphicsContext2D();
+                gc.drawImage(image, 0, 0,canvas.getWidth(), canvas.getHeight());
+
+                theRoot.getChildren().add(canvas);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     /**********

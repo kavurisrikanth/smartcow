@@ -1,28 +1,49 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.json.simple.JSONObject;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
 
 public class BusinessLogic {
+    private ObjectMapper mapper = new ObjectMapper();
+    private Project currentProj = null;
+
     public BusinessLogic() {
 
     }
 
-    public void createProject(File location, String name) throws IOException, IllegalArgumentException {
+    public String createProject(File location, String name) throws IOException, IllegalArgumentException {
         File newFile = new File(location, name);
         if (!newFile.createNewFile())
             throw new IllegalArgumentException("Something went wrong while creating file: " + newFile);
 
         Project p = new Project();
-        p.name = name;
+        p.setName(name);
 
-        ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(newFile, p);
+        currentProj = p;
+
+        System.out.println("New file: " + newFile.getAbsolutePath());
+        return newFile.getAbsolutePath();
     }
 
-    public void openProject(File location) {
+    public void openProject(File location) throws IOException {
+        currentProj = mapper.readValue(location, Project.class);
+        System.out.println(currentProj);
+    }
 
+    public int getNumImages() throws IllegalAccessException {
+        if (currentProj == null)
+            throw new IllegalAccessException("No project open.");
+
+        return currentProj.getImages().size();
+    }
+
+    public ArrayList<Image> getImages() throws IllegalAccessException {
+        if (currentProj == null)
+            throw new IllegalAccessException("No project open.");
+
+        return currentProj.getImages();
     }
 }
