@@ -33,6 +33,10 @@ public class BusinessLogic {
         System.out.println(currentProj);
     }
 
+    public void setAnnotation(int imgIndex, double x, double y, double w, double h, int annoIndex) {
+        currentProj.getImages().get(imgIndex).addAnnotation(annoIndex, x, y, w, h);
+    }
+
     public int getNumImages() throws IllegalAccessException {
         if (currentProj == null)
             throw new IllegalAccessException("No project open.");

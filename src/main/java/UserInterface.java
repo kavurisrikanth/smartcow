@@ -5,10 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
@@ -134,8 +131,41 @@ public class UserInterface {
 
                 canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
                     System.out.println(dragBox);
-                    ObservableList<String> values = FXCollections.observableArrayList("Bike", "Auto Rickshaw", "Car", "Bus");
+                    ObservableList<String> values = FXCollections.observableArrayList(
+                    "Bike",
+                            "Auto Rickshaw",
+                            "Car",
+                            "Bus"
+                    );
                     ComboBox<String> choose = new ComboBox<>(values);
+                    Button set = new Button("Set"),
+                            cancel = new Button("Cancel");
+                    setupComboBoxUI(choose, 10, 10, App.WINDOW_WIDTH/10);
+                    setupButtonUI(set, "Arial", 10, App.WINDOW_WIDTH/15, Pos.CENTER, 10 + App.WINDOW_WIDTH/15 + App.WINDOW_WIDTH/20, 10);
+                    setupButtonUI(cancel, "Arial", 10, App.WINDOW_WIDTH/15, Pos.CENTER, 10 + 2*App.WINDOW_WIDTH/15 + 2*App.WINDOW_WIDTH/20, 10);
+
+                    Pane comboBoxPane = new Pane();
+                    comboBoxPane.getChildren().addAll(choose, set, cancel);
+                    Scene comboBoxScene = new Scene(comboBoxPane, 20 + 3*App.WINDOW_WIDTH/15 + 2*App.WINDOW_WIDTH/20, 40);
+                    Stage comboBoxStage = new Stage();
+                    comboBoxStage.setTitle("Select Annotation");
+                    comboBoxStage.setScene(comboBoxScene);
+
+                    set.setOnAction(click -> {
+                        comboBoxStage.close();
+                        if (choose.getSelectionModel().getSelectedIndex() != -1) {
+                            // Add annotations to image
+                            executor.setAnnotation(0, dragBox.getX(), dragBox.getY(), dragBox.getWidth(), dragBox.getHeight(), choose.getSelectionModel().getSelectedIndex());
+                        }
+                    });
+                    cancel.setOnAction(click -> {
+                        choose.getSelectionModel().select(-1);
+                        comboBoxStage.close();
+                    });
+
+                    System.out.println(choose.getSelectionModel().getSelectedIndex());
+                    comboBoxStage.showAndWait();
+                    System.out.println(choose.getSelectionModel().getSelectedIndex());
 
                     dragBox.setVisible(false);
                     dragStartX[0] = 0;
@@ -176,5 +206,15 @@ public class UserInterface {
         b.setAlignment(p);
         b.setLayoutX(x);
         b.setLayoutY(y);
+    }
+
+    /**********
+     * Private local method to initialize the standard fields for a text field
+     */
+    private void setupComboBoxUI(ComboBox<String> list, double x, double y, double w) {
+        list.setMinWidth(w);
+        list.setMaxWidth(w);
+        list.setLayoutX(x);
+        list.setLayoutY(y);
     }
 }

@@ -6,6 +6,7 @@ public class Image {
 
     public Image(String path) {
         this.path = path;
+        annotations = new ArrayList<>();
     }
 
     public String getPath() {
@@ -22,5 +23,12 @@ public class Image {
 
     public void setAnnotations(ArrayList<Annotation> annotations) {
         this.annotations = annotations;
+    }
+
+    public void addAnnotation(int index, double x, double y, double w, double h) {
+        if (index < 0 || index > AnnotationValue.values().length)
+            return;
+
+        annotations.add(new Annotation(x, y, w, h));
     }
 }
