@@ -1,6 +1,8 @@
 .gradle/**
 .idea/**
-build/**
+build/classes
+build/generated
+build/tmp
 gradle/**
 out/**
 

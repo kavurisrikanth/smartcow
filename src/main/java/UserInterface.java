@@ -1,4 +1,5 @@
-import data.Annotation;
+package main.java;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -21,6 +22,7 @@ import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import main.java.data.Annotation;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,18 +82,14 @@ public class UserInterface {
         dc.setTitle("Choose project location");
         File selectedDir = dc.showDialog(theRoot.getScene().getWindow());
         if (selectedDir != null) {
-            System.out.println("Selected: " + selectedDir);
             TextInputDialog tid = new TextInputDialog("default");
             tid.setTitle("Project name");
             tid.setHeaderText("Directory: " + selectedDir);
             tid.setContentText("Please enter a project name:");
             Optional<String> projectName = tid.showAndWait();
             projectName.ifPresent(name -> {
-                System.out.println("Name: " + name);
                 try {
-                    System.out.println("Trying to create project");
                     currentProj = executor.createProject(selectedDir, name);
-                    System.out.println("Project creation done - " + currentProj);
                     showProject(theRoot);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -108,14 +106,13 @@ public class UserInterface {
         FileChooser.ExtensionFilter jsonFilter = new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json");
         fc.getExtensionFilters().add(jsonFilter);
         File selectedFile = fc.showOpenDialog(theRoot.getScene().getWindow());
-        System.out.println("Selected: " + selectedFile);
         if (selectedFile != null) {
             currentProj = selectedFile.getAbsolutePath();
             showProject(theRoot);
         }
     }
 
-    private void addImageToProjectEditor(data.Image img, GridPane pane) {
+    private void addImageToProjectEditor(main.java.data.Image img, GridPane pane) {
         Image tNail = null;
         try {
             tNail = new Image(new File(img.getPath()).toURI().toURL().toString(), IMAGE_WIDTH, App.WINDOW_HEIGHT/4, false, true);
@@ -170,7 +167,7 @@ public class UserInterface {
         sPane.setAlignment(Pos.CENTER);
 
         try {
-            for (data.Image img : executor.getImages()) {
+            for (main.java.data.Image img : executor.getImages()) {
                 addImageToProjectEditor(img, sPane);
             }
         } catch (IllegalAccessException e) {
@@ -191,8 +188,10 @@ public class UserInterface {
             File img = fc.showOpenDialog(projStage);
             // Add image here
             try {
-                executor.addImage(img);
-                addImageToProjectEditor(new data.Image(img), sPane);
+                if (img != null) {
+                    executor.addImage(img);
+                    addImageToProjectEditor(new main.java.data.Image(img), sPane);
+                }
             } catch (IllegalAccessException | IOException e) {
                 e.printStackTrace();
             }
@@ -203,7 +202,7 @@ public class UserInterface {
             for (File img: images) {
                 try {
                     executor.addImage(img);
-                    addImageToProjectEditor(new data.Image(img), sPane);
+                    addImageToProjectEditor(new main.java.data.Image(img), sPane);
                 } catch (IllegalAccessException | IOException e) {
                     e.printStackTrace();
                 }
@@ -233,7 +232,7 @@ public class UserInterface {
 //        }
     }
 
-    private void createImageEditorWindow(data.Image img) {
+    private void createImageEditorWindow(main.java.data.Image img) {
         Pane imagePane = new Pane();
 
         Canvas canvas = new Canvas(App.WINDOW_WIDTH, App.WINDOW_HEIGHT);
@@ -278,7 +277,6 @@ public class UserInterface {
             });
 
             canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
-                System.out.println(dragBox);
                 ObservableList<String> values = FXCollections.observableArrayList(
                         "Bike",
                         "Autorickshaw",
@@ -330,9 +328,7 @@ public class UserInterface {
                     comboBoxStage.close();
                 });
 
-                System.out.println(choose.getSelectionModel().getSelectedIndex());
                 comboBoxStage.showAndWait();
-                System.out.println(choose.getSelectionModel().getSelectedIndex());
 
                 dragBox.setVisible(false);
                 dragStartX[0] = 0;
@@ -345,7 +341,7 @@ public class UserInterface {
 
             Scene imageScene = new Scene(imagePane, App.WINDOW_WIDTH, App.WINDOW_HEIGHT);
             Stage imageStage = new Stage();
-            imageStage.setTitle("data.Image");
+            imageStage.setTitle("main.java.data.Image");
             imageStage.setScene(imageScene);
             imageStage.show();
         } catch (MalformedURLException e) {

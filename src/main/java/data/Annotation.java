@@ -1,4 +1,4 @@
-package data;
+package main.java.data;
 
 public class Annotation {
     private double x, y;

@@ -1,6 +1,8 @@
+package main.java;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import data.Image;
-import data.Project;
+import main.java.data.Image;
+import main.java.data.Project;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -29,7 +31,6 @@ public class BusinessLogic {
         mapper.writeValue(newFile, p);
         currentProj = p;
 
-        System.out.println("New file: " + newFile.getAbsolutePath());
         p.setFilePath(newFile.getAbsolutePath());
         p.setCsvFilePath(new File(newFile.getParentFile().getAbsolutePath(), name + ".csv").getAbsolutePath());
         saveProject();
@@ -38,7 +39,6 @@ public class BusinessLogic {
 
     public void openProject(File location) throws IOException {
         currentProj = mapper.readValue(location, Project.class);
-        System.out.println(currentProj);
     }
 
     public void saveProject() throws IOException {

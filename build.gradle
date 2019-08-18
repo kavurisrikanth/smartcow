@@ -5,7 +5,29 @@ repositories {
     mavenCentral()
 }
 
+java {
+    sourceCompatibility(JavaVersion.VERSION_1_8)
+    targetCompatibility(JavaVersion.VERSION_1_8)
+}
+
+version("1.0")
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'main.java.App'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
 dependencies {
-    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.0.pr1'
+    compile('com.googlecode.json-simple:json-simple:1.1.1')
+    compile('com.fasterxml.jackson.core:jackson-databind:2.10.0.pr1')
 }

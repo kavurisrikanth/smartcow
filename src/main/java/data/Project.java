@@ -1,6 +1,4 @@
-package data;
-
-import data.Image;
+package main.java.data;
 
 import java.util.ArrayList;
 
