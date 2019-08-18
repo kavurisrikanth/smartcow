@@ -1,3 +1,4 @@
+import data.Annotation;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -31,7 +32,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class UserInterface {
-    private Label label_ImAnno = new Label("data.Image Annotator");
+    private Label label_ImAnno = new Label("Image Annotator");
 
     private Button button_CreateProj = new Button("Create project"),
                     button_OpenProj = new Button("Open project");
@@ -70,8 +71,8 @@ public class UserInterface {
         File selectedDir = dc.showDialog(theRoot.getScene().getWindow());
         if (selectedDir != null) {
             System.out.println("Selected: " + selectedDir);
-            TextInputDialog tid = new TextInputDialog("defaultProject.json");
-            tid.setTitle("data.Project name");
+            TextInputDialog tid = new TextInputDialog("default");
+            tid.setTitle("Project name");
             tid.setHeaderText("Directory: " + selectedDir);
             tid.setContentText("Please enter a project name:");
             Optional<String> projectName = tid.showAndWait();
@@ -80,7 +81,7 @@ public class UserInterface {
                 try {
                     System.out.println("Trying to create project");
                     currentProj = executor.createProject(selectedDir, name);
-                    System.out.println("data.Project creation done - " + currentProj);
+                    System.out.println("Project creation done - " + currentProj);
                     showProject(theRoot);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -217,6 +218,16 @@ public class UserInterface {
             GraphicsContext gc = canvas.getGraphicsContext2D();
             gc.drawImage(image, 0, 0,canvas.getWidth(), canvas.getHeight());
 
+            List<Rectangle> existingAnnos = new ArrayList<>();
+            for (Annotation a: img.getAnnotations()) {
+                Rectangle cur = new Rectangle(a.getX(), a.getY(), a.getW(), a.getH());
+                cur.setVisible(true);
+                cur.setStroke(Color.BLACK);
+                cur.setStrokeWidth(1.0);
+                cur.setFill(Color.TRANSPARENT);
+                existingAnnos.add(cur);
+            }
+
             Rectangle dragBox = new Rectangle(0,0,0,0);
             dragBox.setStroke(Color.BLACK);
             dragBox.setStrokeWidth(1.0);
@@ -265,7 +276,18 @@ public class UserInterface {
                     comboBoxStage.close();
                     if (choose.getSelectionModel().getSelectedIndex() != -1) {
                         // Add annotations to image
-                        executor.setAnnotation(0, dragBox.getX(), dragBox.getY(), dragBox.getWidth(), dragBox.getHeight(), choose.getSelectionModel().getSelectedIndex());
+                        try {
+                            executor.setAnnotation(img, dragBox.getX(), dragBox.getY(), dragBox.getWidth(), dragBox.getHeight(), choose.getSelectionModel().getSelectedIndex());
+                            Rectangle cur = new Rectangle(dragBox.getX(), dragBox.getY(), dragBox.getWidth(), dragBox.getHeight());
+                            cur.setVisible(true);
+                            cur.setStroke(Color.BLACK);
+                            cur.setStrokeWidth(1.0);
+                            cur.setFill(Color.TRANSPARENT);
+                            imagePane.getChildren().add(cur);
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
                 cancel.setOnAction(click -> {
@@ -284,6 +306,7 @@ public class UserInterface {
 
             imagePane.getChildren().add(canvas);
             imagePane.getChildren().add(dragBox);
+            imagePane.getChildren().addAll(existingAnnos);
 
             Scene imageScene = new Scene(imagePane, App.WINDOW_WIDTH, App.WINDOW_HEIGHT);
             Stage imageStage = new Stage();

@@ -8,6 +8,7 @@ public class Project {
     private String name = "";
     private ArrayList<Image> images = new ArrayList<>();
     private String filePath = "";
+    private String csvFilePath = "";
 
     public void addImage(Image i) {
         images.add(i);
@@ -25,6 +26,10 @@ public class Project {
         this.filePath = filePath;
     }
 
+    public void setCsvFilePath(String csvFilePath) {
+        this.csvFilePath = csvFilePath;
+    }
+
     public String getName() {
         return name;
     }
@@ -35,6 +40,10 @@ public class Project {
 
     public String getFilePath() {
         return filePath;
+    }
+
+    public String getCsvFilePath() {
+        return csvFilePath;
     }
 
     @Override

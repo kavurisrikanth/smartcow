@@ -50,9 +50,6 @@ public class Image {
     }
 
     public void addAnnotation(int index, double x, double y, double w, double h) {
-        if (index < 0 || index > AnnotationValue.values().length)
-            return;
-
         annotations.add(new Annotation(x, y, w, h));
     }
 }
