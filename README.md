@@ -1,2 +1,2 @@
 # smartcow
-Image annotation framework using JavaFX.
+data.Image annotation framework using JavaFX.

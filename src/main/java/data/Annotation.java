@@ -1,3 +1,5 @@
+package data;
+
 public class Annotation {
     private double x, y;
     private double w, h;

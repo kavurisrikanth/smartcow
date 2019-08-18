@@ -1,8 +1,9 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
+import data.Image;
+import data.Project;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 
 public class BusinessLogic {
@@ -25,6 +26,8 @@ public class BusinessLogic {
         currentProj = p;
 
         System.out.println("New file: " + newFile.getAbsolutePath());
+        p.setFilePath(newFile.getAbsolutePath());
+        saveProject();
         return newFile.getAbsolutePath();
     }
 
@@ -33,8 +36,22 @@ public class BusinessLogic {
         System.out.println(currentProj);
     }
 
+    public void saveProject() throws IOException {
+        if (currentProj != null)
+            mapper.writeValue(new File(currentProj.getFilePath()), currentProj);
+    }
+
     public void setAnnotation(int imgIndex, double x, double y, double w, double h, int annoIndex) {
         currentProj.getImages().get(imgIndex).addAnnotation(annoIndex, x, y, w, h);
+    }
+
+    public void addImage(File file) throws IllegalAccessException, IOException {
+        if (currentProj == null) {
+            throw new IllegalAccessException("No project open.");
+        }
+
+        currentProj.addImage(new Image(file));
+        saveProject();
     }
 
     public int getNumImages() throws IllegalAccessException {
