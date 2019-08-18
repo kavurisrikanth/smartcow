@@ -3,16 +3,25 @@ package data;
 public class Annotation {
     private double x, y;
     private double w, h;
+    private String name;
 
     public Annotation() {
-        this(0,0,0,0);
+        this(-1, 0,0,0,0);
     }
 
-    public Annotation(double x, double y, double w, double h) {
+    public Annotation(int index, double x, double y, double w, double h) {
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
+        if (index >= 0 && index < AnnotationValue.values().length)
+            this.name = AnnotationValue.values()[index].name();
+        else
+            this.name = "";
+    }
+
+    public String getName() {
+        return name;
     }
 
     public double getX() {

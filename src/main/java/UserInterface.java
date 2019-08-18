@@ -2,6 +2,7 @@ import data.Annotation;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -9,21 +10,18 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import javax.swing.plaf.multi.MultiFileChooserUI;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -44,25 +42,37 @@ public class UserInterface {
 
     private String currentProj;
 
-    private double projX = 10, projY = 10;
-    private int projIndex = 0;
+    private int projX = 0, projY = 0;
+
+    private final double IMAGE_WIDTH = (App.WINDOW_WIDTH - 40)/3;
+    private final double IMAGE_BUFFER = 10;
 
     private BusinessLogic executor = new BusinessLogic();
 
     public UserInterface(Pane theRoot) {
         setupLabelUI(label_ImAnno, "Arial", 28, App.WINDOW_WIDTH, Pos.CENTER, 0, 10);
 
-        setupButtonUI(button_CreateProj, "Arial", 15, BUTTON_WIDTH, Pos.CENTER, createStart, 0.75 * App.WINDOW_HEIGHT);
+        HBox hBox = new HBox();
+        hBox.setSpacing(10);
+        hBox.setPadding(new Insets(10, 10, 10, 10));
+
+        setupButtonUI(button_CreateProj, "Arial", 15, BUTTON_WIDTH);
         button_CreateProj.setOnAction((event) -> {
             createProject(theRoot);
         });
 
-        setupButtonUI(button_OpenProj, "Arial", 15, BUTTON_WIDTH, Pos.CENTER, openStart, 0.75 * App.WINDOW_HEIGHT);
+        setupButtonUI(button_OpenProj, "Arial", 15, BUTTON_WIDTH);
         button_OpenProj.setOnAction((event) -> {
             openProject(theRoot);
         });
 
-        theRoot.getChildren().addAll(label_ImAnno, button_CreateProj, button_OpenProj);
+        VBox container = new VBox();
+        container.setSpacing(10);
+        container.setPadding(new Insets(10, 10, 10, 10));
+
+        hBox.getChildren().addAll(button_CreateProj, button_OpenProj);
+        container.getChildren().addAll(label_ImAnno, hBox);
+        theRoot.getChildren().add(container);
     }
 
     private void createProject(Pane theRoot) {
@@ -105,11 +115,10 @@ public class UserInterface {
         }
     }
 
-    private void addImageToProjectEditor(data.Image img, Pane pane) {
-        projIndex++;
+    private void addImageToProjectEditor(data.Image img, GridPane pane) {
         Image tNail = null;
         try {
-            tNail = new Image(new File(img.getPath()).toURI().toURL().toString(), App.WINDOW_WIDTH/4, App.WINDOW_HEIGHT/4, false, false);
+            tNail = new Image(new File(img.getPath()).toURI().toURL().toString(), IMAGE_WIDTH, App.WINDOW_HEIGHT/4, false, true);
             ImageView iView = new ImageView(tNail);
 
             iView.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
@@ -119,13 +128,10 @@ public class UserInterface {
                 }
             });
 
-            iView.setLayoutX(projX);
-            iView.setLayoutY(projY);
-            pane.getChildren().add(iView);
-
-            projX += BUTTON_WIDTH;
-            if (projIndex % 3 == 0) {
-                projY += BUTTON_WIDTH/4;
+            pane.add(iView, projX++, projY);
+            if (projX == 3) {
+                projY++;
+                projX = 0;
             }
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -139,16 +145,33 @@ public class UserInterface {
             e.printStackTrace();
         }
 
+        projX = 0;
+        projY = 0;
+
         Pane projPane = new Pane();
         Stage projStage = new Stage();
-        projStage.setTitle("Project Editor");
+        projStage.setTitle("Project Editor - " + currentProj);
         Scene projScene = new Scene(projPane);
 
-        List<ImageView> views = new ArrayList<>();
+        HBox buttonsBox = new HBox();
+        buttonsBox.setPadding(new Insets(10, 10, 10, 10));
+        buttonsBox.setSpacing(10);
+
+        VBox container = new VBox();
+        container.setPadding(new Insets(10, 10, 10, 10));
+        container.setSpacing(10);
+
+        GridPane sPane = new GridPane();
+        sPane.setMinWidth(App.WINDOW_WIDTH - 20);
+        sPane.setMinHeight(App.WINDOW_HEIGHT - 60);
+        sPane.setPadding(new Insets(10, 10, 10, 10));
+        sPane.setVgap(5);
+        sPane.setHgap(5);
+        sPane.setAlignment(Pos.CENTER);
 
         try {
             for (data.Image img : executor.getImages()) {
-                addImageToProjectEditor(img, projPane);
+                addImageToProjectEditor(img, sPane);
             }
         } catch (IllegalAccessException e) {
             e.printStackTrace();
@@ -169,7 +192,7 @@ public class UserInterface {
             // Add image here
             try {
                 executor.addImage(img);
-                addImageToProjectEditor(new data.Image(img), projPane);
+                addImageToProjectEditor(new data.Image(img), sPane);
             } catch (IllegalAccessException | IOException e) {
                 e.printStackTrace();
             }
@@ -180,7 +203,7 @@ public class UserInterface {
             for (File img: images) {
                 try {
                     executor.addImage(img);
-                    addImageToProjectEditor(new data.Image(img), projPane);
+                    addImageToProjectEditor(new data.Image(img), sPane);
                 } catch (IllegalAccessException | IOException e) {
                     e.printStackTrace();
                 }
@@ -190,11 +213,14 @@ public class UserInterface {
             projStage.close();
         });
 
-        setupButtonUI(button_addImage, "Arial", 15, BUTTON_WIDTH, Pos.CENTER, createStart, 0.75 * App.WINDOW_HEIGHT);
-        setupButtonUI(button_addImages, "Arial", 15, BUTTON_WIDTH, Pos.CENTER, createStart + BUTTON_WIDTH + BUTTON_BUFFER, 0.75 * App.WINDOW_HEIGHT);
-        setupButtonUI(button_closeProj, "Arial", 15, BUTTON_WIDTH, Pos.CENTER, createStart + 2 * BUTTON_WIDTH + 2 * BUTTON_BUFFER, 0.75 * App.WINDOW_HEIGHT);
+        setupButtonUI(button_addImage, "Arial", 15, BUTTON_WIDTH);
+        setupButtonUI(button_addImages, "Arial", 15, BUTTON_WIDTH);
+        setupButtonUI(button_closeProj, "Arial", 15, BUTTON_WIDTH);
 
-        projPane.getChildren().addAll(button_addImage, button_addImages, button_closeProj);
+        buttonsBox.getChildren().addAll(button_addImage, button_addImages, button_closeProj);
+        container.getChildren().addAll(buttonsBox, sPane);
+
+        projPane.getChildren().addAll(container);
         projStage.setScene(projScene);
         projStage.showAndWait();
 
@@ -225,6 +251,7 @@ public class UserInterface {
                 cur.setStroke(Color.BLACK);
                 cur.setStrokeWidth(1.0);
                 cur.setFill(Color.TRANSPARENT);
+                Tooltip.install(cur, new Tooltip(a.getName()));
                 existingAnnos.add(cur);
             }
 
@@ -254,22 +281,29 @@ public class UserInterface {
                 System.out.println(dragBox);
                 ObservableList<String> values = FXCollections.observableArrayList(
                         "Bike",
-                        "Auto Rickshaw",
+                        "Autorickshaw",
                         "Car",
                         "Bus"
                 );
+
+                HBox hBox = new HBox();
+                hBox.setSpacing(5);
+                hBox.setPadding(new Insets(10, 10, 10, 10));
+
                 ComboBox<String> choose = new ComboBox<>(values);
                 Button set = new Button("Set"),
                         cancel = new Button("Cancel");
-                setupComboBoxUI(choose, 10, 10, App.WINDOW_WIDTH/10);
-                setupButtonUI(set, "Arial", 10, App.WINDOW_WIDTH/15, Pos.CENTER, 10 + App.WINDOW_WIDTH/15 + App.WINDOW_WIDTH/20, 10);
-                setupButtonUI(cancel, "Arial", 10, App.WINDOW_WIDTH/15, Pos.CENTER, 10 + 2*App.WINDOW_WIDTH/15 + 2*App.WINDOW_WIDTH/20, 10);
+                setupComboBoxUI(choose, App.WINDOW_WIDTH/10);
+                setupButtonUI(set, "Arial", 10, App.WINDOW_WIDTH/15);
+                setupButtonUI(cancel, "Arial", 10, App.WINDOW_WIDTH/15);
+
+                hBox.getChildren().addAll(choose, set, cancel);
 
                 Pane comboBoxPane = new Pane();
-                comboBoxPane.getChildren().addAll(choose, set, cancel);
+                comboBoxPane.getChildren().add(hBox);
                 Scene comboBoxScene = new Scene(comboBoxPane, 20 + 3*App.WINDOW_WIDTH/15 + 2*App.WINDOW_WIDTH/20, 40);
                 Stage comboBoxStage = new Stage();
-                comboBoxStage.setTitle("Select data.Annotation");
+                comboBoxStage.setTitle("Select Annotation");
                 comboBoxStage.setScene(comboBoxScene);
 
                 set.setOnAction(click -> {
@@ -283,6 +317,7 @@ public class UserInterface {
                             cur.setStroke(Color.BLACK);
                             cur.setStrokeWidth(1.0);
                             cur.setFill(Color.TRANSPARENT);
+                            Tooltip.install(cur, new Tooltip(choose.getSelectionModel().getSelectedItem()));
                             imagePane.getChildren().add(cur);
 
                         } catch (IOException e) {
@@ -330,21 +365,16 @@ public class UserInterface {
         l.setLayoutY(y);
     }
 
-    private void setupButtonUI(Button b, String ff, double f, double w, Pos p, double x, double y) {
+    private void setupButtonUI(Button b, String ff, double f, double w) {
         b.setFont(Font.font(ff, f));
         b.setMinWidth(w);
-        b.setAlignment(p);
-        b.setLayoutX(x);
-        b.setLayoutY(y);
     }
 
     /**********
      * Private local method to initialize the standard fields for a text field
      */
-    private void setupComboBoxUI(ComboBox<String> list, double x, double y, double w) {
+    private void setupComboBoxUI(ComboBox<String> list, double w) {
         list.setMinWidth(w);
         list.setMaxWidth(w);
-        list.setLayoutX(x);
-        list.setLayoutY(y);
     }
 }
