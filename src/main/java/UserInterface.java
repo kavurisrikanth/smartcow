@@ -32,10 +32,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class UserInterface {
-    private Label label_ImAnno = new Label("Image Annotator");
-
-    private Button button_CreateProj = new Button("Create project"),
-                    button_OpenProj = new Button("Open project");
 
     private final double BUTTON_WIDTH = App.WINDOW_WIDTH/4;
     private final double BUTTON_BUFFER = BUTTON_WIDTH/10;
@@ -47,22 +43,24 @@ public class UserInterface {
     private int projX = 0, projY = 0;
 
     private final double IMAGE_WIDTH = (App.WINDOW_WIDTH - 40)/3;
-    private final double IMAGE_BUFFER = 10;
 
     private BusinessLogic executor = new BusinessLogic();
 
     public UserInterface(Pane theRoot) {
+        Label label_ImAnno = new Label("Image Annotator");
         setupLabelUI(label_ImAnno, "Arial", 28, App.WINDOW_WIDTH, Pos.CENTER, 0, 10);
 
         HBox hBox = new HBox();
         hBox.setSpacing(10);
         hBox.setPadding(new Insets(10, 10, 10, 10));
 
+        Button button_CreateProj = new Button("Create project");
         setupButtonUI(button_CreateProj, "Arial", 15, BUTTON_WIDTH);
         button_CreateProj.setOnAction((event) -> {
             createProject(theRoot);
         });
 
+        Button button_OpenProj = new Button("Open project");
         setupButtonUI(button_OpenProj, "Arial", 15, BUTTON_WIDTH);
         button_OpenProj.setOnAction((event) -> {
             openProject(theRoot);
@@ -222,14 +220,6 @@ public class UserInterface {
         projPane.getChildren().addAll(container);
         projStage.setScene(projScene);
         projStage.showAndWait();
-
-//        try {
-//
-//            if (executor.getNumImages() > 0) {
-//
-//        } catch (IOException | IllegalAccessException e) {
-//            e.printStackTrace();
-//        }
     }
 
     private void createImageEditorWindow(main.java.data.Image img) {
